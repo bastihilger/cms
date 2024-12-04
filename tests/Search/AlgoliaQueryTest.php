@@ -15,6 +15,7 @@ class AlgoliaQueryTest extends TestCase
     public function it_adds_scores()
     {
         $index = Mockery::mock(Index::class);
+        $index->shouldReceive('name');
         $index->shouldReceive('searchUsingApi')->with('foo')->once()->andReturn(collect([
             ['reference' => 'a'],
             ['reference' => 'b'],

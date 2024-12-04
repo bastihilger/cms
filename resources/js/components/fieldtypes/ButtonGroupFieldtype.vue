@@ -5,8 +5,9 @@
                 v-for="(option, $index) in options"
                 :key="$index"
                 ref="button"
+                type="button"
                 :name="name"
-                @click="update($event.target.value)"
+                @click="updateSelectedOption($event.target.value)"
                 :value="option.value"
                 :disabled="isReadOnly"
                 :class="{'active': value === option.value}"
@@ -39,7 +40,7 @@ export default {
 
     computed: {
         options() {
-            return this.normalizeInputOptions(this.config.options);
+            return this.normalizeInputOptions(this.meta.options || this.config.options);
         },
 
         replicatorPreview() {
@@ -51,6 +52,10 @@ export default {
     },
 
     methods: {
+
+        updateSelectedOption(newValue) {
+            this.update(this.value == newValue && this.config.clearable ? null : newValue);
+        },
 
         setupResizeObserver() {
             this.resizeObserver = new ResizeObserver(() => {

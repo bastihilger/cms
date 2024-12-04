@@ -2,12 +2,12 @@
 
 namespace Statamic\Console\Commands;
 
-use Facades\Statamic\StarterKits\Exporter as StarterKitExporter;
 use Illuminate\Console\Command;
 use Statamic\Console\RunsInPlease;
 use Statamic\Facades\File;
 use Statamic\Facades\Path;
 use Statamic\StarterKits\Exceptions\StarterKitException;
+use Statamic\StarterKits\Exporter as StarterKitExporter;
 
 use function Laravel\Prompts\confirm;
 
@@ -20,7 +20,9 @@ class StarterKitExport extends Command
      *
      * @var string
      */
-    protected $signature = 'statamic:starter-kit:export { path : Specify the path you are exporting to }';
+    protected $signature = 'statamic:starter-kit:export
+        { path : Specify the path you are exporting to }
+        { --clear : Clear out everything at target export path before exporting }';
 
     /**
      * The console command description.
@@ -42,8 +44,11 @@ class StarterKitExport extends Command
             $this->askToCreateExportPath($path);
         }
 
+        $exporter = (new StarterKitExporter($path))
+            ->clear($this->option('clear'));
+
         try {
-            StarterKitExporter::export($path);
+            $exporter->export();
         } catch (StarterKitException $exception) {
             $this->components->error($exception->getMessage());
 
@@ -56,7 +61,7 @@ class StarterKitExport extends Command
     /**
      * Ask to stub out starter kit config.
      */
-    protected function askToStubStarterKitConfig()
+    protected function askToStubStarterKitConfig(): void
     {
         $stubPath = __DIR__.'/stubs/starter-kits/starter-kit.yaml.stub';
         $newPath = base_path($config = 'starter-kit.yaml');
@@ -75,10 +80,8 @@ class StarterKitExport extends Command
 
     /**
      * Get absolute path.
-     *
-     * @return string
      */
-    protected function getAbsolutePath()
+    protected function getAbsolutePath(): string
     {
         $path = $this->argument('path');
 
@@ -89,10 +92,8 @@ class StarterKitExport extends Command
 
     /**
      * Ask to create export path.
-     *
-     * @param  string  $path
      */
-    protected function askToCreateExportPath($path)
+    protected function askToCreateExportPath(string $path): void
     {
         if ($this->input->isInteractive()) {
             if (! confirm("Path [{$path}] does not exist. Would you like to create it now?", true)) {
